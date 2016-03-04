@@ -1,7 +1,9 @@
 package ua.motorny.randomplayer.ui.activities
 
-import android.os.Bundle
 import android.support.v7.widget.Toolbar
+import android.widget.TextView
+import com.vk.sdk.VKSdk
+import org.androidannotations.annotations.AfterViews
 
 import org.androidannotations.annotations.EActivity
 import org.androidannotations.annotations.ViewById
@@ -13,8 +15,13 @@ open class NavigationActivity : BaseActivity () {
     @ViewById
     lateinit var toolbar : Toolbar;
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState);
+    @ViewById
+    lateinit var hello_textView : TextView;
+
+    @AfterViews
+    protected fun afterView() {
+        setSupportActionBar(toolbar);
+        VKSdk.login(this, null);
     }
 
 }

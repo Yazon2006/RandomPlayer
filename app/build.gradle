@@ -39,6 +39,9 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
     compile 'com.android.support:design:23.2.0'
+
+    compile 'com.vk:androidsdk:+'
+
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     kapt "org.androidannotations:androidannotations:$AAVersion"
@@ -51,7 +54,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.android.tools.build:gradle:2.0.0-beta5'
+        classpath 'com.android.tools.build:gradle:2.0.0-beta6'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
 }
