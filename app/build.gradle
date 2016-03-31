@@ -39,7 +39,7 @@ kapt {
 }
 
 apply plugin: 'com.android.application'
-def AAVersion = '3.3.2'
+def AAVersion = '4.0.0'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

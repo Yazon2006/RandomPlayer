@@ -43,10 +43,10 @@ class MusicPlayerActivity : BaseActivity(), MediaBrowserFragment.MediaFragmentLi
             return fragment.mediaId
         }
 
-    private val browseFragment: MediaBrowserFragment?
+    private val browseFragment: MediaBrowserFragment_?
         get() {
             val fragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG)
-            if (fragment != null) return fragment as MediaBrowserFragment
+            if (fragment != null) return fragment as MediaBrowserFragment_?
             else return null
         }
 
@@ -131,7 +131,7 @@ class MusicPlayerActivity : BaseActivity(), MediaBrowserFragment.MediaFragmentLi
         var fragment = browseFragment
 
         if (fragment == null || !TextUtils.equals(fragment.mediaId, mediaId)) {
-            fragment = MediaBrowserFragment()
+            fragment = MediaBrowserFragment_()
             fragment.mediaId = mediaId
             val transaction = fragmentManager.beginTransaction()
             transaction.setCustomAnimations(
