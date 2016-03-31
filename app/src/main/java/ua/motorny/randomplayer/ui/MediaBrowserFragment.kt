@@ -198,8 +198,7 @@ open class MediaBrowserFragment : Fragment() {
         val mediaBrowser = mMediaFragmentListener!!.getMediaBrowser()
         mediaBrowser!!.getItem(mMediaId!!, object : MediaBrowserCompat.ItemCallback() {
             override fun onItemLoaded(item: MediaBrowserCompat.MediaItem?) {
-                mMediaFragmentListener!!.setToolbarTitle(
-                        item!!.description.title)
+                mMediaFragmentListener!!.setToolbarTitle(item!!.description.title)
             }
         })
     }

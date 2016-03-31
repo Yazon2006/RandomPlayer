@@ -22,7 +22,7 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="app_name">Universal Music Player</string>
+    <string name="app_name">Random Player</string>
     <string name="favorite">Favorite</string>
     <string name="error_no_metadata">Unable to retrieve metadata.</string>
     <string name="browse_genres">Genres</string>
