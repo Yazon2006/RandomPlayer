@@ -51,18 +51,17 @@ import kotlin.reflect.KClass
  */
 abstract class ActionBarCastActivity : AppCompatActivity() {
 
-    private var mCastManager: VideoCastManager? = null
-    private var mMediaRouteMenuItem: MenuItem? = null
-    private var mToolbar: Toolbar? = null
-    private var mDrawerToggle: ActionBarDrawerToggle? = null
-    private var mDrawerLayout: DrawerLayout? = null
+    lateinit private var mCastManager: VideoCastManager
+    lateinit private var mMediaRouteMenuItem: MenuItem
+    lateinit private var mToolbar: Toolbar
+    lateinit private var mDrawerToggle: ActionBarDrawerToggle
+    lateinit private var mDrawerLayout: DrawerLayout
 
     private var mToolbarInitialized: Boolean = false
 
     private var mItemToOpenWhenDrawerCloses = -1
 
     private val mCastConsumer = object : VideoCastConsumerImpl() {
-
         override fun onFailed(resourceId: Int, statusCode: Int) {
             LogHelper.d(TAG, "onFailed ", resourceId.toString(), " status ", statusCode.toString())
         }
@@ -77,19 +76,18 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
         override fun onCastAvailabilityChanged(castPresent: Boolean) {
             if (castPresent) {
                 Handler().postDelayed({
-                    if (mMediaRouteMenuItem!!.isVisible) {
+                    if (mMediaRouteMenuItem.isVisible) {
                         LogHelper.d(TAG, "Cast Icon is visible")
                         showFtu()
                     }
                 }, DELAY_MILLIS.toLong())
             }
         }
-
     }
 
     private val mDrawerListener = object : DrawerLayout.DrawerListener {
         override fun onDrawerClosed(drawerView: View) {
-            if (mDrawerToggle != null) mDrawerToggle!!.onDrawerClosed(drawerView)
+            mDrawerToggle.onDrawerClosed(drawerView)
             if (mItemToOpenWhenDrawerCloses >= 0) {
                 val extras = ActivityOptions.makeCustomAnimation(
                         this@ActionBarCastActivity, R.anim.fade_in, R.anim.fade_out).toBundle()
@@ -107,17 +105,18 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
         }
 
         override fun onDrawerStateChanged(newState: Int) {
-            if (mDrawerToggle != null) mDrawerToggle!!.onDrawerStateChanged(newState)
+            mDrawerToggle.onDrawerStateChanged(newState)
         }
 
         override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-            if (mDrawerToggle != null) mDrawerToggle!!.onDrawerSlide(drawerView, slideOffset)
+            mDrawerToggle.onDrawerSlide(drawerView, slideOffset)
         }
 
         override fun onDrawerOpened(drawerView: View) {
-            if (mDrawerToggle != null) mDrawerToggle!!.onDrawerOpened(drawerView)
-            if (supportActionBar != null)
-                supportActionBar!!.setTitle(R.string.app_name)
+            mDrawerToggle.onDrawerOpened(drawerView)
+            var actionBar = supportActionBar
+            if (actionBar != null)
+                actionBar.setTitle(R.string.app_name)
         }
     }
 
@@ -125,13 +124,11 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LogHelper.d(TAG, "Activity onCreate")
 
-        // Ensure that Google Play Service is available.
         VideoCastManager.checkGooglePlayServices(this)
 
         mCastManager = VideoCastManager.getInstance()
-        mCastManager!!.reconnectSessionIfPossible()
+        mCastManager.reconnectSessionIfPossible()
     }
 
     override fun onStart() {
@@ -143,15 +140,14 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        if (mDrawerToggle != null) {
-            mDrawerToggle!!.syncState()
-        }
+            mDrawerToggle.syncState()
+
     }
 
     public override fun onResume() {
         super.onResume()
-        mCastManager!!.addVideoCastConsumer(mCastConsumer)
-        mCastManager!!.incrementUiCounter()
+        mCastManager.addVideoCastConsumer(mCastConsumer)
+        mCastManager.incrementUiCounter()
 
         // Whenever the fragment back stack changes, we may need to update the
         // action bar toggle: only top level screens show the hamburger-like icon, inner
@@ -161,27 +157,25 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (mDrawerToggle != null) {
-            mDrawerToggle!!.onConfigurationChanged(newConfig)
-        }
+            mDrawerToggle.onConfigurationChanged(newConfig)
     }
 
     public override fun onPause() {
         super.onPause()
-        mCastManager!!.removeVideoCastConsumer(mCastConsumer)
-        mCastManager!!.decrementUiCounter()
+        mCastManager.removeVideoCastConsumer(mCastConsumer)
+        mCastManager.decrementUiCounter()
         fragmentManager.removeOnBackStackChangedListener(mBackStackChangedListener)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.main, menu)
-        mMediaRouteMenuItem = mCastManager!!.addMediaRouterButton(menu, R.id.media_route_menu_item)
+        mMediaRouteMenuItem = mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if (mDrawerToggle != null && mDrawerToggle!!.onOptionsItemSelected(item)) {
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true
         }
         // If not handled by drawerToggle, home needs to be handled by returning to previous
@@ -194,8 +188,8 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // If the drawer is open, back will close it
-        if (mDrawerLayout != null && mDrawerLayout!!.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout!!.closeDrawers()
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawers()
             return
         }
         // Otherwise, it may return to the previous fragment stack
@@ -210,38 +204,26 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     override fun setTitle(title: CharSequence) {
         super.setTitle(title)
-        mToolbar!!.title = title
+        mToolbar.title = title
     }
 
     override fun setTitle(titleId: Int) {
         super.setTitle(titleId)
-        mToolbar!!.setTitle(titleId)
+        mToolbar.setTitle(titleId)
     }
 
     protected fun initializeToolbar() {
         mToolbar = findViewById(R.id.toolbar) as Toolbar
-        if (mToolbar == null) {
-            throw IllegalStateException("Layout is required to include a Toolbar with id " + "'toolbar'")
-        }
-        mToolbar!!.inflateMenu(R.menu.main)
+        mToolbar.inflateMenu(R.menu.main)
+        mDrawerLayout = findViewById(R.id.drawer_layout) as DrawerLayout
+        val navigationView = findViewById(R.id.nav_view) as NavigationView
 
-        var view = findViewById(R.id.drawer_layout)
-        if (view != null) {
-            mDrawerLayout = view as DrawerLayout
-        }
-        if (mDrawerLayout != null) {
-            val navigationView = findViewById(R.id.nav_view) as NavigationView
-
-            // Create an ActionBarDrawerToggle that will handle opening/closing of the drawer:
-            mDrawerToggle = ActionBarDrawerToggle(this, mDrawerLayout,
-                    mToolbar, R.string.open_content_drawer, R.string.close_content_drawer)
-            mDrawerLayout!!.setDrawerListener(mDrawerListener)
-            populateDrawerItems(navigationView)
-            setSupportActionBar(mToolbar)
-            updateDrawerToggle()
-        } else {
-            setSupportActionBar(mToolbar)
-        }
+        // Create an ActionBarDrawerToggle that will handle opening/closing of the drawer:
+        mDrawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_content_drawer, R.string.close_content_drawer)
+        mDrawerLayout.addDrawerListener(mDrawerListener)
+        populateDrawerItems(navigationView)
+        setSupportActionBar(mToolbar)
+        updateDrawerToggle()
 
         mToolbarInitialized = true
     }
@@ -250,7 +232,7 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
         navigationView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             mItemToOpenWhenDrawerCloses = menuItem.itemId
-            mDrawerLayout!!.closeDrawers()
+            mDrawerLayout.closeDrawers()
             true
         }
         if (MusicPlayerActivity::class.java.isAssignableFrom(javaClass)) {
@@ -261,18 +243,16 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
     }
 
     protected fun updateDrawerToggle() {
-        if (mDrawerToggle == null) {
-            return
-        }
         val isRoot = fragmentManager.backStackEntryCount == 0
-        mDrawerToggle!!.isDrawerIndicatorEnabled = isRoot
-        if (supportActionBar != null) {
-            supportActionBar!!.setDisplayShowHomeEnabled(!isRoot)
-            supportActionBar!!.setDisplayHomeAsUpEnabled(!isRoot)
-            supportActionBar!!.setHomeButtonEnabled(!isRoot)
+        mDrawerToggle.isDrawerIndicatorEnabled = isRoot
+        var actionBar = supportActionBar
+        if (actionBar != null) {
+            actionBar.setDisplayShowHomeEnabled(!isRoot)
+            actionBar.setDisplayHomeAsUpEnabled(!isRoot)
+            actionBar.setHomeButtonEnabled(!isRoot)
         }
         if (isRoot) {
-            mDrawerToggle!!.syncState()
+            mDrawerToggle.syncState()
         }
     }
 
@@ -281,7 +261,7 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
      * the Cast icon)
      */
     private fun showFtu() {
-        val menu = mToolbar!!.menu
+        val menu = mToolbar.menu
         val view = menu.findItem(R.id.media_route_menu_item).actionView
         if (view != null && view is MediaRouteButton) {
             val overlay = IntroductoryOverlay.Builder(this).setMenuItem(mMediaRouteMenuItem).setTitleText(R.string.touch_to_cast).setSingleTime().build()
@@ -290,9 +270,7 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
     }
 
     companion object {
-
         private val TAG = LogHelper.makeLogTag(ActionBarCastActivity::class)
-
         private val DELAY_MILLIS = 1000
     }
 }
