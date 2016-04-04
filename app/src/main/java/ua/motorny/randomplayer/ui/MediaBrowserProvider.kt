@@ -18,5 +18,5 @@ package ua.motorny.randomplayer.ui
 import android.support.v4.media.MediaBrowserCompat
 
 interface MediaBrowserProvider {
-    fun getMediaBrowser() : MediaBrowserCompat?
+    fun getMediaBrowser() : MediaBrowserCompat
 }

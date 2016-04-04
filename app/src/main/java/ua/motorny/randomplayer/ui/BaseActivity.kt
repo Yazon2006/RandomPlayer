@@ -41,13 +41,47 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
     lateinit private var mMediaBrowser: MediaBrowserCompat
     private var mControlsFragment: PlaybackControlsFragment? = null
 
+    // Callback that ensures that we are showing the controls
+    private val mMediaControllerCallback = object : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            if (shouldShowControls()) {
+                showPlaybackControls()
+            } else {
+                LogHelper.d(TAG, "mediaControllerCallback.onPlaybackStateChanged: " + "hiding controls because state is ", state.state.toString())
+                hidePlaybackControls()
+            }
+        }
+
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            if (shouldShowControls()) {
+                showPlaybackControls()
+            } else {
+                LogHelper.d(TAG, "mediaControllerCallback.onMetadataChanged: " + "hiding controls because metadata is null")
+                hidePlaybackControls()
+            }
+        }
+    }
+
+    private val mConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            LogHelper.d(TAG, "onConnected")
+            try {
+                connectToSession(mMediaBrowser.sessionToken)
+            } catch (e: RemoteException) {
+                LogHelper.e(TAG, e, "could not connect media controller")
+                hidePlaybackControls()
+            }
+
+        }
+    }
+
+
+    /* lifecycle */
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT >= 21) {
-            // Since our app icon has the same color as colorPrimary, our entry in the Recent Apps
-            // list gets weird. We need to change either the icon or the color
-            // of the TaskDescription.
             val taskDesc = ActivityManager.TaskDescription(
                     title.toString(),
                     BitmapFactory.decodeResource(resources, R.drawable.ic_launcher_white),
@@ -56,8 +90,6 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
             setTaskDescription(taskDesc)
         }
 
-        // Connect a media browser just to get the media session token. There are other ways
-        // this can be done, for example by sharing the session token directly.
         mMediaBrowser = MediaBrowserCompat(this, ComponentName(this, MusicService::class.java), mConnectionCallback, null)
     }
 
@@ -66,9 +98,8 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
 
         mControlsFragment = fragmentManager.findFragmentById(R.id.fragment_playback_controls) as PlaybackControlsFragment
         if (mControlsFragment == null) {
-            throw IllegalStateException("Mising fragment with id 'controls'. Cannot continue.")
+            throw IllegalStateException("Missing fragment with id 'controls'. Cannot continue.")
         }
-
         hidePlaybackControls()
 
         mMediaBrowser.connect()
@@ -76,12 +107,14 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
 
     override fun onStop() {
         super.onStop()
-        LogHelper.d(TAG, "Activity onStop")
         if (supportMediaController != null) {
             supportMediaController.unregisterCallback(mMediaControllerCallback)
         }
         mMediaBrowser.disconnect()
     }
+
+
+    /* protected func's */
 
     override fun getMediaBrowser(): MediaBrowserCompat {
         return mMediaBrowser
@@ -108,7 +141,6 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
     /**
      * Check if the MediaSession is active and in a "playback-able" state
      * (not NONE and not STOPPED).
-
      * @return true if the MediaSession's state requires playback controls to be visible.
      */
     protected fun shouldShowControls(): Boolean {
@@ -140,40 +172,6 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
         }
 
         onMediaControllerConnected()
-    }
-
-    // Callback that ensures that we are showing the controls
-    private val mMediaControllerCallback = object : MediaControllerCompat.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
-            if (shouldShowControls()) {
-                showPlaybackControls()
-            } else {
-                LogHelper.d(TAG, "mediaControllerCallback.onPlaybackStateChanged: " + "hiding controls because state is ", state.state.toString())
-                hidePlaybackControls()
-            }
-        }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            if (shouldShowControls()) {
-                showPlaybackControls()
-            } else {
-                LogHelper.d(TAG, "mediaControllerCallback.onMetadataChanged: " + "hiding controls because metadata is null")
-                hidePlaybackControls()
-            }
-        }
-    }
-
-    private val mConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
-        override fun onConnected() {
-            LogHelper.d(TAG, "onConnected")
-            try {
-                connectToSession(mMediaBrowser!!.sessionToken)
-            } catch (e: RemoteException) {
-                LogHelper.e(TAG, e, "could not connect media controller")
-                hidePlaybackControls()
-            }
-
-        }
     }
 
     companion object {

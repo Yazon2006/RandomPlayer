@@ -122,6 +122,9 @@ abstract class ActionBarCastActivity : AppCompatActivity() {
 
     private val mBackStackChangedListener = FragmentManager.OnBackStackChangedListener { updateDrawerToggle() }
 
+
+    /* lifecycle */
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
