@@ -44,8 +44,6 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        LogHelper.d(TAG, "Activity onCreate")
-
         if (Build.VERSION.SDK_INT >= 21) {
             // Since our app icon has the same color as colorPrimary, our entry in the Recent Apps
             // list gets weird. We need to change either the icon or the color
@@ -60,13 +58,11 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
 
         // Connect a media browser just to get the media session token. There are other ways
         // this can be done, for example by sharing the session token directly.
-        mMediaBrowser = MediaBrowserCompat(this,
-                ComponentName(this, MusicService::class.java), mConnectionCallback, null)
+        mMediaBrowser = MediaBrowserCompat(this, ComponentName(this, MusicService::class.java), mConnectionCallback, null)
     }
 
     override fun onStart() {
         super.onStart()
-        LogHelper.d(TAG, "Activity onStart")
 
         mControlsFragment = fragmentManager.findFragmentById(R.id.fragment_playback_controls) as PlaybackControlsFragment
         if (mControlsFragment == null) {
@@ -75,7 +71,7 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
 
         hidePlaybackControls()
 
-        mMediaBrowser!!.connect()
+        mMediaBrowser.connect()
     }
 
     override fun onStop() {
@@ -84,7 +80,7 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
         if (supportMediaController != null) {
             supportMediaController.unregisterCallback(mMediaControllerCallback)
         }
-        mMediaBrowser!!.disconnect()
+        mMediaBrowser.disconnect()
     }
 
     override fun getMediaBrowser(): MediaBrowserCompat {
@@ -117,9 +113,7 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
      */
     protected fun shouldShowControls(): Boolean {
         val mediaController = supportMediaController
-        if (mediaController == null ||
-                mediaController.metadata == null ||
-                mediaController.playbackState == null) {
+        if (mediaController == null || mediaController.metadata == null || mediaController.playbackState == null) {
             return false
         }
         when (mediaController.playbackState.state) {
@@ -183,7 +177,6 @@ abstract class BaseActivity : ActionBarCastActivity(), MediaBrowserProvider {
     }
 
     companion object {
-
         private val TAG = LogHelper.makeLogTag(BaseActivity::class)
     }
 
